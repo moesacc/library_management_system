@@ -1,0 +1,73 @@
+user (members,admin)
+Schema::create('users', function (Blueprint $table) {
+    $table->id();
+
+    $table->string('name');
+    $table->string('email')->unique()->nullable();
+    $table->string('phone')->unique()->nullable();
+    $table->string('password')->nullable()->default(now())->hashed();
+    $table->string('profile_path')->nullable();
+
+    $table->string('type')->default(TypeOfUserEnum::Member->value);
+    $table->string('status')->default(TypeOfUserStatusEnum::Inactive->value);
+
+    $table->integer('borrow_limit')->default(2); // 1, 2, 5 books per time
+    $table->timestamp('membership_started_at')->nullable();
+    $table->timestamp('membership_expires_at')->nullable();
+    $table->enum('subscription_type', ['60_books', '30_books', 'unlimited'])->default('30_books');
+    $table->rememberToken();
+    $table->timestamp('email_verified_at')->nullable();
+    $table->timestamps();
+});
+
+authors
+Schema::create('authors', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->text('bio')->nullable();
+    $table->timestamps();
+});
+
+categories
+Schema::create('categories', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->text('description')->nullable();
+    $table->foreignIdFor(Category::class, 'parent_id')->nullable();
+    $table->timestamps();
+});
+
+
+books
+Schema::create('books', function (Blueprint $table) {
+    $table->id();
+    $table->string('title');
+    $table->text('summary');
+    $table->decimal('price', 10, 2)->nullable();
+    $table->string('status')->default(BookStatusEnum::DRAFT->value);
+
+    $table->foreignIdFor(Author::class)->nullable();
+    $table->foreignIdFor(Category::class)->nullable();
+
+    $table->timestamp('published_at')->nullable();
+    $table->timestamps();
+});
+
+copied
+
+subscriptions
+
+borrowings
+Schema::create('borrowings', function (Blueprint $table) {
+    $table->id();
+    $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+    $table->foreignIdFor(Book::class)->constrained()->cascadeOnDelete();
+    $table->date('borrowed_at');
+    $table->date('due_date');
+    $table->date('returned_at')->nullable();
+    $table->timestamps();
+});
+donations
+
+purchases
+
